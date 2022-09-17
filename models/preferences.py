@@ -8,3 +8,7 @@ class Preference:
     name: str
     created_at: datetime
 
+
+@strawberry.input
+class PreferenceInput:
+    name: str
