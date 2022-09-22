@@ -17,6 +17,7 @@ kafka-python==2.0.2
 loguru==0.6.0
 packaging==21.3
 protobuf==4.21.6
+pycapnp==1.2.1
 pydantic==1.10.2
 Pygments==2.13.0
 pyparsing==3.0.9

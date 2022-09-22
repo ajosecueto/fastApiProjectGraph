@@ -1,3 +1,7 @@
+import capnp
+
+capnp.remove_import_hook()
+preference_capnp = capnp.load('capnp/preference.capnp')
 from aiokafka import AIOKafkaConsumer
 from loguru import logger
 
@@ -13,9 +17,23 @@ async def preferences_consumer():
     try:
         async for msg in consumer:
             logger.info(f'Consumer msg: {msg.value}')
-            preference = preferences_pb2.Preference()
-            preference.ParseFromString(msg.value)
-            logger.info(preference)
-            await PreferencesRepository.create(name=preference.name)
+
+            """
+              Protocol buffer
+            """
+
+            # preference = preferences_pb2.Preference()
+            # preference.ParseFromString(msg.value)
+            # logger.info(preference)
+            # await PreferencesRepository.create(name=preference.name)
+
+            """
+            Capn'p Method
+            """
+
+            with preference_capnp.Preference.from_bytes(msg.value) as preference:
+                logger.info(preference)
+                await PreferencesRepository.create(name=preference.name)
+
     finally:
         await consumer.stop()

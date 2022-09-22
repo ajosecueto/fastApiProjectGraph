@@ -1,28 +1,12 @@
-from generated.proto import todolist_pb2 as TodoList
+from generated.proto import preferences_pb2
 
-my_list = TodoList.TodoList()
-my_list.owner_id = 1234
-my_list.owner_name = "Tim"
-
-first_item = my_list.todos.add()
-first_item.state = TodoList.TaskState.Value("TASK_DONE")
-first_item.task = "Test ProtoBuf for Python"
-first_item.due_date = "31.10.2019"
-
-
-second_item = my_list.todos.add()
-second_item.state = TodoList.TaskState.Value("TASK_CLOSED")
-second_item.task = "Test ProtoBuf for Python"
-second_item.due_date = "31.10.2019"
-
-
+pref = preferences_pb2.Preference(name="demodemo")
 
 with open("./serializedFile", "wb") as fd:
-    fd.write(my_list.SerializeToString())
+    fd.write(pref.SerializeToString())
 
-
-my_list2 = TodoList.TodoList()
+pref = preferences_pb2.Preference()
 with open("./serializedFile", "rb") as fd:
-    my_list2.ParseFromString(fd.read())
+    pref.ParseFromString(fd.read())
 
-print(my_list2)
+print(pref)

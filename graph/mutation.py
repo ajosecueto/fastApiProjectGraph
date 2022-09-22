@@ -1,3 +1,7 @@
+import capnp
+
+capnp.remove_import_hook()
+preference_capnp = capnp.load('capnp/preference.capnp')
 import strawberry
 from aiokafka import AIOKafkaProducer
 from loguru import logger
@@ -15,9 +19,23 @@ class Mutation:
         try:
             logger.info("Sending events")
 
-            preference = preferences_pb2.Preference(name=data.name)
             await producer.start()
-            await producer.send_and_wait(topic=KAFKA_TOPIC, value=preference.SerializeToString())
+            """
+             Protocol buffer
+             bytes 21
+             """
+            # preference = preferences_pb2.Preference(name=data.name)
+            # logger.info(len(preference.SerializeToString()))
+            # await producer.send_and_wait(topic=KAFKA_TOPIC, value=preference.SerializeToString())
+
+            """
+             Capn'p Method
+             bytes 48
+             """
+            preference = preference_capnp.Preference.new_message()
+            preference.name = data.name
+            logger.info(len(preference.to_bytes()))
+            await producer.send_and_wait(topic=KAFKA_TOPIC, value=preference.to_bytes())
             return True
         except Exception as e:
             raise e
