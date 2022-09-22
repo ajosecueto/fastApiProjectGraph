@@ -1,9 +1,7 @@
-import json
-
 from aiokafka import AIOKafkaConsumer
 from loguru import logger
 
-from models.preferences import PreferenceInput
+from generated.proto import preferences_pb2
 from repository.preferences import PreferencesRepository
 from utils.kafka import loop, KAFKA_BOOTSTRAP_SERVERS, KAFKA_CONSUMER_GROUP, KAFKA_TOPIC
 
@@ -14,8 +12,10 @@ async def preferences_consumer():
     await consumer.start()
     try:
         async for msg in consumer:
-            logger.info(f'Consumer msg: {msg}')
-            data = PreferenceInput(**json.loads(msg.value))
-            await PreferencesRepository.create(name=data.name)
+            logger.info(f'Consumer msg: {msg.value}')
+            preference = preferences_pb2.Preference()
+            preference.ParseFromString(msg.value)
+            logger.info(preference)
+            await PreferencesRepository.create(name=preference.name)
     finally:
         await consumer.stop()
